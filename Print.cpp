@@ -18,7 +18,7 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 //
 //  Modified 23 November 2006 by David A. Mellis
-//  Modified 28 September 2014 by Roger A. Krupski <rakrupski@verizon.net>
+//  Modified 26 January 2016 by Roger A. Krupski <rakrupski@verizon.net>
 //   * can print 64 bit numbers
 //   * does not use any buffer to print
 //   * adds print_P and println_P
@@ -26,22 +26,28 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
 #if ARDUINO < 100
-	#include <WProgram.h>
+#include "WProgram.h"
 #else
-	#include <Arduino.h>
+#include "Arduino.h"
 #endif
 
 #include "Print.h"
-#include "Streaming.h"
 
 // Public Methods
 // default implementation: may be overridden
-size_t Print::write (const uint8_t *str, size_t sz)
+size_t Print::write (const uint8_t *str, size_t siz)
 {
 	size_t n = 0;
 
-	while (sz--) {
+	while (siz--) {
 		write (str[n++]);
 	}
 
@@ -49,21 +55,6 @@ size_t Print::write (const uint8_t *str, size_t sz)
 }
 
 /////////////////////// unsigned, print() ///////////////////////
-size_t Print::print (const unsigned char *str)
-{
-	size_t n = 0;
-	unsigned char c;
-
-	while ((c = str[n++])) {
-		if (c == '\n') {
-			write ('\r');
-		}
-		write (c);
-	}
-
-	return n;
-}
-
 size_t Print::print (uint8_t value, uint8_t base)
 {
 	return printNumber (value, base, _unsigned);
@@ -85,12 +76,6 @@ size_t Print::print (uint64_t value, uint8_t base)
 }
 
 /////////////////////// unsigned, println() ///////////////////////
-size_t Print::println (const unsigned char *str)
-{
-	size_t n = print (str);
-	return (n + println());
-}
-
 size_t Print::println (uint8_t value, uint8_t base)
 {
 	size_t n = print (value, base);
@@ -125,6 +110,7 @@ size_t Print::print (const char *str)
 		if (c == '\n') {
 			write ('\r');
 		}
+
 		write (c);
 	}
 
@@ -225,26 +211,6 @@ size_t Print::println (const __FlashStringHelper *ifsh)
 	return (n + println());
 }
 
-// print_P, unsigned
-size_t Print::print_P (const unsigned char *str)
-{
-	size_t n = 0;
-	unsigned char c;
-
-	while (c = pgm_read_byte (str + n++)) {
-		write (c);
-	}
-
-	return n;
-}
-
-// println_P, unsigned
-size_t Print::println_P (const unsigned char *str)
-{
-	size_t n = print_P (str);
-	return (n + println());
-}
-
 // print_P, signed
 size_t Print::print_P (const char *str)
 {
@@ -309,7 +275,7 @@ size_t Print::printNumber (int64_t value, uint8_t base, uint8_t sign)
 		return write (pgm_read_byte (chars + 0));
 	}
 
-	if (base == _DEC_ && value < 0 && sign) {
+	if (base == DEC && value < 0 && sign) {
 		n += write (pgm_read_byte (chars + 16));
 		value = -value;
 	}
@@ -319,7 +285,7 @@ size_t Print::printNumber (int64_t value, uint8_t base, uint8_t sign)
 
 	// if base < 2 then default to decimal (prevent crash if base == 0)
 	// if base > 16 then default to hex
-	base = base < _BIN_ ? _DEC_ : base > _HEX_ ? _HEX_ : base;
+	base = base < BIN ? DEC : base > HEX ? HEX : base;
 
 	while (val) {
 		val /= base;

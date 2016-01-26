@@ -29,14 +29,15 @@
 #ifndef _PRINT_H
 #define _PRINT_H
 
-#define _BIN_ 2
-#define _OCT_ 8
-#define _DEC_ 10
-#define _HEX_ 16
+#define BIN  2
+#define OCT  8
+#define DEC 10
+#define HEX 16
 
 #define _unsigned 0
 #define _signed 1
 
+#include <inttypes.h>
 #include <stdio.h>
 #include "WString.h"
 #include "Printable.h"
@@ -87,37 +88,33 @@ class Print {
 			obj.print (*this); println();
 		}
 		// unsigned
-		size_t print (const unsigned char *);
-		size_t print (uint8_t, uint8_t = _DEC_);
-		size_t print (uint16_t, uint8_t = _DEC_);
-		size_t print (uint32_t, uint8_t = _DEC_);
-		size_t print (uint64_t, uint8_t = _DEC_);
-		size_t println (const unsigned char *);
-		size_t println (uint8_t, uint8_t = _DEC_);
-		size_t println (uint16_t, uint8_t = _DEC_);
-		size_t println (uint32_t, uint8_t = _DEC_);
-		size_t println (uint64_t, uint8_t = _DEC_);
+		size_t print (uint8_t, uint8_t = 10);
+		size_t print (uint16_t, uint8_t = 10);
+		size_t print (uint32_t, uint8_t = 10);
+		size_t print (uint64_t, uint8_t = 10);
+		size_t println (uint8_t, uint8_t = 10);
+		size_t println (uint16_t, uint8_t = 10);
+		size_t println (uint32_t, uint8_t = 10);
+		size_t println (uint64_t, uint8_t = 10);
 		// signed
 		size_t print (const char *);
 		size_t print (char);
-		size_t print (int8_t, uint8_t = _DEC_);
-		size_t print (int16_t, uint8_t = _DEC_);
-		size_t print (int32_t, uint8_t = _DEC_);
-		size_t print (int64_t, uint8_t = _DEC_);
-		size_t println (const char *str); // string
+		size_t print (int8_t, uint8_t = 10);
+		size_t print (int16_t, uint8_t = 10);
+		size_t print (int32_t, uint8_t = 10);
+		size_t print (int64_t, uint8_t = 10);
+		size_t println (const char *);
 		size_t println (char);
-		size_t println (int8_t, uint8_t = _DEC_);
-		size_t println (int16_t, uint8_t = _DEC_);
-		size_t println (int32_t, uint8_t = _DEC_);
-		size_t println (int64_t, uint8_t = _DEC_);
+		size_t println (int8_t, uint8_t = 10);
+		size_t println (int16_t, uint8_t = 10);
+		size_t println (int32_t, uint8_t = 10);
+		size_t println (int64_t, uint8_t = 10);
 		// floating point
 		size_t print (double, uint8_t = 2);
 		size_t println (double, uint8_t = 2);
 		// PROGMEM
 		size_t print (const __FlashStringHelper *);
 		size_t println (const __FlashStringHelper *);
-		size_t print_P (const unsigned char *);
-		size_t println_P (const unsigned char *);
 		size_t print_P (const char *);
 		size_t println_P (const char *);
 		// String
