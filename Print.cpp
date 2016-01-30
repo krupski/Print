@@ -18,10 +18,11 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 //
 //  Modified 23 November 2006 by David A. Mellis
-//  Modified 26 January 2016 by Roger A. Krupski <rakrupski@verizon.net>
+//  Modified 30 January 2016 by Roger A. Krupski <rakrupski@verizon.net>
 //   * can print 64 bit numbers
 //   * does not use any buffer to print
-//   * adds print_P and println_P
+//   * adds print_P and println_P (print strings from PROGMEM a.k.a. Flash)
+//   * adds print_E and println_E (print strings from EEMEM a.k.a. EEProm)
 //   * printing a string with "\n" in it automatically adds the "\r"
 //
 //////////////////////////////////////////////////////////////////////////////////////
@@ -95,6 +96,35 @@ size_t Print::println (uint32_t value, uint8_t base)
 size_t Print::println (uint64_t value, uint8_t base)
 {
 	size_t n = print (value, base);
+	return (n + println());
+}
+
+//// unsigned, print() and println(), EEMEM (eeprom) strings ////
+size_t Print::print_E (const uint8_t *str)
+{
+	size_t n = 0;
+	uint8_t *ptr;
+	char c;
+
+	ptr = (uint8_t *) str;
+
+	while (1) {
+		c = eeprom_read_byte (ptr++);
+		if ((c == 0) || (c == 0xFF)) {
+			break;
+
+		} else {
+			n++; // count this char
+			write (c);
+		}
+	}
+
+	return n;
+}
+
+size_t Print::println_E (const uint8_t *str)
+{
+	size_t n = print_E (str);
 	return (n + println());
 }
 
@@ -189,14 +219,14 @@ size_t Print::println (double value, uint8_t digits)
 	return (n + println());
 }
 
-//////////// print() and println(), PROGMEM strings ////////////
+//////////// signed, print() and println(), PROGMEM strings ////////////
 size_t Print::print (const __FlashStringHelper *ifsh)
 {
 	PGM_P p = reinterpret_cast<PGM_P> (ifsh);
 	size_t n = 0;
 	unsigned char c;
 
-	while ((c = pgm_read_byte (p + n++))) {
+	while ((c = PGM_R (p + n++))) {
 		write (c);
 	}
 
@@ -215,7 +245,7 @@ size_t Print::print_P (const char *str)
 	size_t n = 0;
 	char c;
 
-	while (c = pgm_read_byte (str + n++)) {
+	while (c = PGM_R (str + n++)) {
 		write (c);
 	}
 
@@ -270,11 +300,11 @@ size_t Print::printNumber (int64_t value, uint8_t base, uint8_t sign)
 	static const uint8_t chars[] PROGMEM = "0123456789ABCDEF-";
 
 	if (!value) {
-		return write (pgm_read_byte (chars + 0));
+		return write (PGM_R (chars + 0));
 	}
 
 	if (base == DEC && value < 0 && sign) {
-		n += write (pgm_read_byte (chars + 16));
+		n += write (PGM_R (chars + 16));
 		value = -value;
 	}
 
@@ -293,7 +323,7 @@ size_t Print::printNumber (int64_t value, uint8_t base, uint8_t sign)
 	while (pow--) {
 		idx = value / intPower (base, pow);
 		value -= idx * intPower (base, pow);
-		n += write (pgm_read_byte (chars + idx));
+		n += write (PGM_R (chars + idx));
 	};
 
 	return n;
