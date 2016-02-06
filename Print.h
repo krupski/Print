@@ -18,7 +18,7 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 //
 //  Modified 23 November 2006 by David A. Mellis
-//  Modified 30 January 2016 by Roger A. Krupski <rakrupski@verizon.net>
+//  Modified 05 February 2016 by Roger A. Krupski <rakrupski@verizon.net>
 //   * can print 64 bit numbers
 //   * does not use any buffer to print
 //   * adds print_P and println_P (print strings from PROGMEM a.k.a. Flash)
