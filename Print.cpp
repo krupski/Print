@@ -99,35 +99,6 @@ size_t Print::println (uint64_t value, uint8_t base)
 	return (n + println());
 }
 
-//// unsigned, print() and println(), EEMEM (eeprom) strings ////
-size_t Print::print_E (const uint8_t *str)
-{
-	size_t n = 0;
-	uint8_t *ptr;
-	char c;
-
-	ptr = (uint8_t *) str;
-
-	while (1) {
-		c = eeprom_read_byte (ptr++);
-		if ((c == 0) || (c == 0xFF)) {
-			break;
-
-		} else {
-			n++; // count this char
-			write (c);
-		}
-	}
-
-	return n;
-}
-
-size_t Print::println_E (const uint8_t *str)
-{
-	size_t n = print_E (str);
-	return (n + println());
-}
-
 /////////////////////// signed, print() ///////////////////////
 size_t Print::print (const char *str)
 {
@@ -256,6 +227,25 @@ size_t Print::print_P (const char *str)
 size_t Print::println_P (const char *str)
 {
 	size_t n = print_P (str);
+	return (n + println());
+}
+
+// print_E, EEMEM (eeprom) strings ////
+size_t Print::print_E (const char *str)
+{
+	size_t n = 0;
+	char c;
+
+	while (c = eeprom_read_byte ((const uint8_t *) str + n++)) {
+		write (c);
+	}
+
+	return n;
+}
+
+size_t Print::println_E (const char *str)
+{
+	size_t n = print_E (str);
 	return (n + println());
 }
 

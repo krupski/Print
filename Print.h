@@ -80,46 +80,38 @@ class Print {
 		void println (const _Printable &obj) {
 			obj.print (*this); println();
 		}
-		// unsigned
 		size_t print (uint8_t, uint8_t = 10);
-		size_t print (uint16_t, uint8_t = 10);
-		size_t print (uint32_t, uint8_t = 10);
-		size_t print (uint64_t, uint8_t = 10);
 		size_t println (uint8_t, uint8_t = 10);
+		size_t print (uint16_t, uint8_t = 10);
 		size_t println (uint16_t, uint8_t = 10);
+		size_t print (uint32_t, uint8_t = 10);
 		size_t println (uint32_t, uint8_t = 10);
+		size_t print (uint64_t, uint8_t = 10);
 		size_t println (uint64_t, uint8_t = 10);
-		// unsigned, EEPROM
-		size_t print_E (const uint8_t *);
-		size_t println_E (const uint8_t *);
-		// signed
 		size_t print (const char *);
-		size_t print (char);
-		size_t print (int8_t, uint8_t = 10);
-		size_t print (int16_t, uint8_t = 10);
-		size_t print (int32_t, uint8_t = 10);
-		size_t print (int64_t, uint8_t = 10);
 		size_t println (const char *);
+		size_t print (char);
 		size_t println (char);
+		size_t print (int8_t, uint8_t = 10);
 		size_t println (int8_t, uint8_t = 10);
+		size_t print (int16_t, uint8_t = 10);
 		size_t println (int16_t, uint8_t = 10);
+		size_t print (int32_t, uint8_t = 10);
 		size_t println (int32_t, uint8_t = 10);
+		size_t print (int64_t, uint8_t = 10);
 		size_t println (int64_t, uint8_t = 10);
-		// floating point
 		size_t print (double, uint8_t = 2);
 		size_t println (double, uint8_t = 2);
-		// PROGMEM
 		size_t print (const __FlashStringHelper *);
 		size_t println (const __FlashStringHelper *);
 		size_t print_P (const char *);
 		size_t println_P (const char *);
-		// String
+		size_t print_E (const char *);
+		size_t println_E (const char *);
 		size_t print (const String &);
 		size_t println (const String &);
-		// Printable
 		size_t print (const Printable &);
 		size_t println (const Printable &);
-		// Everyone needs println()
 		size_t println (void);
 	private:
 		int write_error;
