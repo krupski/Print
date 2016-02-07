@@ -18,7 +18,7 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 //
 //  Modified 23 November 2006 by David A. Mellis
-//  Modified 05 February 2016 by Roger A. Krupski <rakrupski@verizon.net>
+//  Modified 06 February 2016 by Roger A. Krupski <rakrupski@verizon.net>
 //   * can print 64 bit numbers
 //   * does not use any buffer to print
 //   * adds print_P and println_P (print strings from PROGMEM a.k.a. Flash)
@@ -27,8 +27,15 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef _PRINT_H
-#define _PRINT_H
+#ifndef PRINT_H
+#define PRINT_H
+
+#include <stdio.h>
+#include <inttypes.h>
+#include <avr/pgmspace.h>
+#include <avr/eeprom.h>
+#include "WString.h"
+#include "Printable.h"
 
 #define BIN  2
 #define OCT  8
@@ -37,13 +44,6 @@
 
 #define _unsigned 0
 #define _signed 1
-
-#include <inttypes.h>
-#include <stdio.h>
-#include <avr/pgmspace.h>
-#include <avr/eeprom.h>
-#include "WString.h"
-#include "Printable.h"
 
 #define ARDUINO_CORE_PRINTABLE_SUPPORT
 

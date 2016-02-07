@@ -18,7 +18,7 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 //
 //  Modified 23 November 2006 by David A. Mellis
-//  Modified 05 February 2016 by Roger A. Krupski <rakrupski@verizon.net>
+//  Modified 06 February 2016 by Roger A. Krupski <rakrupski@verizon.net>
 //   * can print 64 bit numbers
 //   * does not use any buffer to print
 //   * adds print_P and println_P (print strings from PROGMEM a.k.a. Flash)
@@ -26,11 +26,6 @@
 //   * printing a string with "\n" in it automatically adds the "\r"
 //
 //////////////////////////////////////////////////////////////////////////////////////
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
 
 #if ARDUINO < 100
 #include "WProgram.h"
@@ -47,7 +42,7 @@ size_t Print::write (const uint8_t *str, size_t siz)
 	size_t n = 0;
 
 	while (siz--) {
-		write (str[n++]);
+		write (*(str + n++));
 	}
 
 	return n;
@@ -105,7 +100,7 @@ size_t Print::print (const char *str)
 	size_t n = 0;
 	char c;
 
-	while ((c = str[n++])) {
+	while ((c = *(str + n++))) {
 		if (c == '\n') {
 			write ('\r');
 		}
@@ -216,7 +211,7 @@ size_t Print::print_P (const char *str)
 	size_t n = 0;
 	char c;
 
-	while (c = PGM_R (str + n++)) {
+	while ((c = PGM_R (str + n++))) {
 		write (c);
 	}
 
@@ -236,7 +231,7 @@ size_t Print::print_E (const char *str)
 	size_t n = 0;
 	char c;
 
-	while (c = eeprom_read_byte ((const uint8_t *) str + n++)) {
+	while ((c = eeprom_read_byte ((const uint8_t *) (str + n++)))) {
 		write (c);
 	}
 
@@ -287,13 +282,13 @@ size_t Print::printNumber (int64_t value, uint8_t base, uint8_t sign)
 	uint8_t idx;
 	uint8_t pow;
 	int64_t val;
-	static const uint8_t chars[] PROGMEM = "0123456789ABCDEF-";
+	static const char chars[] PROGMEM = "0123456789ABCDEF-"; // save a little SRAM
 
 	if (!value) {
 		return write (PGM_R (chars + 0));
 	}
 
-	if (base == DEC && value < 0 && sign) {
+	if ((base == DEC) && (value < 0) && sign) {
 		n += write (PGM_R (chars + 16));
 		value = -value;
 	}
@@ -311,8 +306,8 @@ size_t Print::printNumber (int64_t value, uint8_t base, uint8_t sign)
 	}
 
 	while (pow--) {
-		idx = value / intPower (base, pow);
-		value -= idx * intPower (base, pow);
+		idx = (value / intPower (base, pow));
+		value -= (idx * intPower (base, pow));
 		n += write (PGM_R (chars + idx));
 	};
 
@@ -323,22 +318,25 @@ size_t Print::printNumber (int64_t value, uint8_t base, uint8_t sign)
 size_t Print::printFloat (double value, uint8_t digits)
 {
 	size_t n = 0;
+	static const char msgs[][5] PROGMEM = { // save a little SRAM
+		"nan", "inf", "ovf", "-", ".",
+	};
 
 	if (isnan (value)) {
-		return write ("nan");
+		return print_P (msgs[0]); // print "nan"
 	}
 
 	if (isinf (value)) {
-		return write ("inf");
+		return print_P (msgs[1]); // print "inf"
 	}
 
 	if ((value < -4294967167.0) || (value > 4294967167.0)) {
-		return write ("ovf");
+		return print_P (msgs[2]); // print "ovf"
 	}
 
 	// Handle negative numbers
 	if (value < 0.0) {
-		n += write ('-');
+		n += print_P (msgs[3]); // print "-"
 		value = -value;
 	}
 
@@ -365,7 +363,7 @@ size_t Print::printFloat (double value, uint8_t digits)
 
 	// Print the decimal point, but only if there are digits beyond
 	if (digits > 0) {
-		n += write ('.');
+		n += print_P (msgs[4]); // print "."
 	}
 
 	// Extract digits from the remainder one at a time
