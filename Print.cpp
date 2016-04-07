@@ -69,6 +69,11 @@ size_t Print::print (uint64_t value, uint8_t base)
 	return printNumber (value, base, _unsigned);
 }
 
+//size_t Print::print (uint64_t value)
+//{
+//	return printBinary (value);
+//}
+
 /////////////////////// unsigned, println() ///////////////////////
 size_t Print::println (uint8_t value, uint8_t base)
 {
@@ -185,6 +190,17 @@ size_t Print::println (double value, uint8_t digits)
 	return (n + println());
 }
 
+size_t Print::print (double value, uint8_t digits, uint8_t places)
+{
+	return printFloat (value, digits, places);
+}
+
+size_t Print::println (double value, uint8_t digits, uint8_t places)
+{
+	size_t n = printFloat (value, digits, places);
+	return (n + println());
+}
+
 //////////// signed, print() and println(), PROGMEM strings ////////////
 size_t Print::print (const __FlashStringHelper *ifsh)
 {
@@ -281,34 +297,33 @@ size_t Print::printNumber (int64_t value, uint8_t base, uint8_t sign)
 	size_t n = 0;
 	uint8_t idx;
 	uint8_t pow;
-	int64_t val;
-	static const char chars[] PROGMEM = "0123456789ABCDEF-"; // save a little SRAM
+	uint64_t val;
 
 	if (!value) {
-		return write (PGM_R (chars + 0));
+		return write ('0');
 	}
 
-	if ((base == DEC) && (value < 0) && sign) {
-		n += write (PGM_R (chars + 16));
+	if ((value < 0) && sign) {
 		value = -value;
+		n += write ('-');
 	}
-
-	pow = 0;
-	val = value;
 
 	// if base < 2 then default to decimal (prevent crash if base == 0)
 	// if base > 16 then default to hex
 	base = base < BIN ? DEC : base > HEX ? HEX : base;
 
+	pow = 0; // initialize power value
+	val = value; // make a scrap copy of "value"
+
 	while (val) {
 		val /= base;
-		pow++;
+		pow++; // how many digits in "value" with a base of "base"
 	}
 
-	while (pow--) {
+	while (pow--) { // print each character
 		idx = (value / intPower (base, pow));
 		value -= (idx * intPower (base, pow));
-		n += write (PGM_R (chars + idx));
+		n += write (idx + '0');
 	};
 
 	return n;
@@ -318,25 +333,22 @@ size_t Print::printNumber (int64_t value, uint8_t base, uint8_t sign)
 size_t Print::printFloat (double value, uint8_t digits)
 {
 	size_t n = 0;
-	static const char msgs[][5] PROGMEM = { // save a little SRAM
-		"nan", "inf", "ovf", "-", ".",
-	};
 
 	if (isnan (value)) {
-		return print_P (msgs[0]); // print "nan"
+		n += write ("nan"); // print "not a number"
 	}
 
 	if (isinf (value)) {
-		return print_P (msgs[1]); // print "inf"
+		n += write ("inf"); // print "infinity"
 	}
 
 	if ((value < -4294967167.0) || (value > 4294967167.0)) {
-		return print_P (msgs[2]); // print "ovf"
+		n += write ("ovf"); // print "overflow"
 	}
 
 	// Handle negative numbers
 	if (value < 0.0) {
-		n += print_P (msgs[3]); // print "-"
+		n += write ('-'); // print "-"
 		value = -value;
 	}
 
@@ -363,7 +375,7 @@ size_t Print::printFloat (double value, uint8_t digits)
 
 	// Print the decimal point, but only if there are digits beyond
 	if (digits > 0) {
-		n += print_P (msgs[4]); // print "."
+		n += write ('.'); // print "."
 	}
 
 	// Extract digits from the remainder one at a time
@@ -375,6 +387,74 @@ size_t Print::printFloat (double value, uint8_t digits)
 	}
 
 	return n;
+}
+
+// A better printFloat that accepts 2 parameters like printf x.yf does.
+// allows control of both the decimal point position AND the number
+// of characters to print. For example, to print numbers that are
+// potentially 5 digits with 2 digits after the decimal point, you do
+// this: print (value, 8, 2). This is because a value like 12345.67
+// has 8 characters total, with two places after the decimal point.
+// This is how the normal printf works, and it's time Arduino caught
+// up with reality.
+size_t Print::printFloat (double value, uint8_t digits, uint8_t dp)
+{
+	size_t n = 0;
+	uint8_t chr, flag, def, x;
+	uint64_t div, decpt, val;
+
+	if (value < 0.0) {
+		value = -value;
+		n += write ('-');
+	}
+
+	val = ((uint64_t) (value + 0.5));
+	def = 1;
+
+	while (val) {
+		def++;
+		val /= 10;
+	}
+
+	if (digits < (def + dp)) {
+		digits = (def + dp);
+	}
+
+	div = 1;
+	x = (digits - 2); // account for decimal place
+
+	while (x--) {
+		div *= 10;
+	}
+
+	decpt = 1;
+	x = dp;
+
+	while (x--) {
+		decpt *= 10;
+	}
+
+	val = ((uint64_t) ((value * decpt) + 0.5)); // rounding
+	flag = 0; // zero suppress flag
+
+	while (div) {
+		chr = ((val / div) % 10);
+		if (chr || flag || (div == decpt)) {
+			n += write (chr + '0');
+			flag = 1; // printed first non-zero, so don't suppress any more zeros
+
+		} else {
+			n += write (' '); // leading spaces - comment this line out if you don't want them.
+		}
+
+		if ((div == decpt) && dp) {
+			n += write ('.'); // the decimal point (if it needs one);
+		}
+
+		div /= 10;
+	}
+
+	return n; // written character count
 }
 
 // performs base to the exp power
