@@ -18,7 +18,7 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 //
 //  Modified 23 November 2006 by David A. Mellis
-//  Modified 06 February 2016 by Roger A. Krupski <rakrupski@verizon.net>
+//  Modified 11 April 2016 by Roger A. Krupski <rakrupski@verizon.net>
 //   * can print 64 bit numbers
 //   * does not use any buffer to print
 //   * adds print_P and println_P (print strings from PROGMEM a.k.a. Flash)
@@ -68,11 +68,6 @@ size_t Print::print (uint64_t value, uint8_t base)
 {
 	return printNumber (value, base, _unsigned);
 }
-
-//size_t Print::print (uint64_t value)
-//{
-//	return printBinary (value);
-//}
 
 /////////////////////// unsigned, println() ///////////////////////
 size_t Print::println (uint8_t value, uint8_t base)
@@ -190,25 +185,25 @@ size_t Print::println (double value, uint8_t digits)
 	return (n + println());
 }
 
-size_t Print::print (double value, uint8_t digits, uint8_t places)
+size_t Print::print (double value, uint8_t digits, uint8_t places, uint8_t ls)
 {
-	return printFloat (value, digits, places);
+	return printFloat (value, digits, places, ls);
 }
 
-size_t Print::println (double value, uint8_t digits, uint8_t places)
+size_t Print::println (double value, uint8_t digits, uint8_t places, uint8_t ls)
 {
-	size_t n = printFloat (value, digits, places);
+	size_t n = printFloat (value, digits, places, ls);
 	return (n + println());
 }
 
 //////////// signed, print() and println(), PROGMEM strings ////////////
 size_t Print::print (const __FlashStringHelper *ifsh)
 {
-	PGM_P p = reinterpret_cast<PGM_P> (ifsh);
+	PGM_P p = reinterpret_cast <PGM_P> (ifsh);
 	size_t n = 0;
 	unsigned char c;
 
-	while ((c = PGM_R (p + n++))) {
+	while ((c = PGM_READ_BYTE (p + n++))) {
 		write (c);
 	}
 
@@ -222,12 +217,11 @@ size_t Print::println (const __FlashStringHelper *ifsh)
 }
 
 // print_P, signed
-size_t Print::print_P (const char *str)
+size_t Print::print_P (const void *str)
 {
 	size_t n = 0;
 	char c;
-
-	while ((c = PGM_R (str + n++))) {
+	while ((c = PGM_READ_BYTE (str + n++))) {
 		write (c);
 	}
 
@@ -235,26 +229,26 @@ size_t Print::print_P (const char *str)
 }
 
 // println_P, signed
-size_t Print::println_P (const char *str)
+size_t Print::println_P (const void *str)
 {
 	size_t n = print_P (str);
 	return (n + println());
 }
 
 // print_E, EEMEM (eeprom) strings ////
-size_t Print::print_E (const char *str)
+size_t Print::print_E (const void *str)
 {
 	size_t n = 0;
 	char c;
 
-	while ((c = eeprom_read_byte ((const uint8_t *) (str + n++)))) {
+	while ((c = eeprom_read_byte ((const uint8_t *)(str + n++)))) {
 		write (c);
 	}
 
 	return n;
 }
 
-size_t Print::println_E (const char *str)
+size_t Print::println_E (const void *str)
 {
 	size_t n = print_E (str);
 	return (n + println());
@@ -397,7 +391,7 @@ size_t Print::printFloat (double value, uint8_t digits)
 // has 8 characters total, with two places after the decimal point.
 // This is how the normal printf works, and it's time Arduino caught
 // up with reality.
-size_t Print::printFloat (double value, uint8_t digits, uint8_t dp)
+size_t Print::printFloat (double value, uint8_t digits, uint8_t dp, uint8_t ls)
 {
 	size_t n = 0;
 	uint8_t chr, flag, def, x;
@@ -408,7 +402,7 @@ size_t Print::printFloat (double value, uint8_t digits, uint8_t dp)
 		n += write ('-');
 	}
 
-	val = ((uint64_t) (value + 0.5));
+	val = ((uint64_t)(value + 0.5));
 	def = 1;
 
 	while (val) {
@@ -434,7 +428,7 @@ size_t Print::printFloat (double value, uint8_t digits, uint8_t dp)
 		decpt *= 10;
 	}
 
-	val = ((uint64_t) ((value * decpt) + 0.5)); // rounding
+	val = ((uint64_t)((value * decpt) + 0.5)); // rounding
 	flag = 0; // zero suppress flag
 
 	while (div) {
@@ -444,7 +438,9 @@ size_t Print::printFloat (double value, uint8_t digits, uint8_t dp)
 			flag = 1; // printed first non-zero, so don't suppress any more zeros
 
 		} else {
-			n += write (' '); // leading spaces - comment this line out if you don't want them.
+			if (ls) {
+				n += write (' '); // leading spaces
+			}
 		}
 
 		if ((div == decpt) && dp) {

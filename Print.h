@@ -18,7 +18,7 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 //
 //  Modified 23 November 2006 by David A. Mellis
-//  Modified 06 February 2016 by Roger A. Krupski <rakrupski@verizon.net>
+//  Modified 11 April 2016 by Roger A. Krupski <rakrupski@verizon.net>
 //   * can print 64 bit numbers
 //   * does not use any buffer to print
 //   * adds print_P and println_P (print strings from PROGMEM a.k.a. Flash)
@@ -102,14 +102,14 @@ class Print {
 		size_t println (int64_t, uint8_t = 10);
 		size_t print (double, uint8_t = 2);
 		size_t println (double, uint8_t = 2);
-		size_t print (double, uint8_t, uint8_t);
-		size_t println (double, uint8_t, uint8_t);
+		size_t print (double, uint8_t, uint8_t, uint8_t = 1);
+		size_t println (double, uint8_t, uint8_t, uint8_t = 1);
 		size_t print (const __FlashStringHelper *);
 		size_t println (const __FlashStringHelper *);
-		size_t print_P (const char *);
-		size_t println_P (const char *);
-		size_t print_E (const char *);
-		size_t println_E (const char *);
+		size_t print_P (const void *);
+		size_t println_P (const void *);
+		size_t print_E (const void *);
+		size_t println_E (const void *);
 		size_t print (const String &);
 		size_t println (const String &);
 		size_t print (const Printable &);
@@ -119,12 +119,12 @@ class Print {
 		int write_error;
 		size_t printNumber (int64_t, uint8_t, uint8_t);
 		size_t printFloat (double, uint8_t);
-		size_t printFloat (double, uint8_t, uint8_t);
+		size_t printFloat (double, uint8_t, uint8_t, uint8_t);
 		uint64_t intPower (uint8_t, uint8_t);
 #ifdef pgm_read_byte_far
-#define PGM_R pgm_read_byte_far
+#define PGM_READ_BYTE pgm_read_byte_far
 #else
-#define PGM_R pgm_read_byte_near
+#define PGM_READ_BYTE pgm_read_byte_near
 #endif
 	protected:
 		void setWriteError (int err = 1) {
