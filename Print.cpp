@@ -18,21 +18,20 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 //
 //  Modified 23 November 2006 by David A. Mellis
-//  Modified 11 April 2016 by Roger A. Krupski <rakrupski@verizon.net>
-//   * can print 64 bit numbers
-//   * does not use any buffer to print
-//   * adds print_P and println_P (print strings from PROGMEM a.k.a. Flash)
-//   * adds print_E and println_E (print strings from EEMEM a.k.a. EEProm)
-//   * printing a string with "\n" in it automatically adds the "\r"
+//  Modified 15 April 2016 by Roger A. Krupski <rakrupski@verizon.net>
+//    * can print 64 bit numbers
+//    * does not use any buffer to print
+//    * adds print_P and println_P (print strings from PROGMEM a.k.a. Flash)
+//    * adds print_E and println_E (print strings from EEMEM a.k.a. EEProm)
+//    * printing a string with "\n" in it automatically adds the "\r"
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if ARDUINO < 100
-#include "WProgram.h"
+	#include "WProgram.h"
 #else
-#include "Arduino.h"
+	#include "Arduino.h"
 #endif
-
 #include "Print.h"
 
 // Public Methods
@@ -42,7 +41,7 @@ size_t Print::write (const uint8_t *str, size_t siz)
 	size_t n = 0;
 
 	while (siz--) {
-		write (*(str + n++));
+		write (* (str + n++));
 	}
 
 	return n;
@@ -95,12 +94,12 @@ size_t Print::println (uint64_t value, uint8_t base)
 }
 
 /////////////////////// signed, print() ///////////////////////
-size_t Print::print (const char *str)
+size_t Print::print (const void *str)
 {
 	size_t n = 0;
 	char c;
 
-	while ((c = *(str + n++))) {
+	while ((c = * (((const char *) str) + n++))) {
 		if (c == '\n') {
 			write ('\r');
 		}
@@ -137,9 +136,9 @@ size_t Print::print (int64_t value, uint8_t base)
 }
 
 /////////////////////// signed, println() ///////////////////////
-size_t Print::println (const char *str)
+size_t Print::println (const void *str)
 {
-	size_t n = print (str);
+	size_t n = print ((const char *) str);
 	return (n + println());
 }
 
@@ -176,7 +175,7 @@ size_t Print::println (int64_t value, uint8_t base)
 //////////// print() and println(), floating point ////////////
 size_t Print::print (double value, uint8_t digits)
 {
-	return printFloat (value, digits);
+	return printDouble (value, digits);
 }
 
 size_t Print::println (double value, uint8_t digits)
@@ -185,18 +184,44 @@ size_t Print::println (double value, uint8_t digits)
 	return (n + println());
 }
 
+//////////// handle long doubles - just in case ///////////////
+size_t Print::print (long double value, uint8_t digits)
+{
+	return printDouble (value, digits);
+}
+
+size_t Print::println (long double value, uint8_t digits)
+{
+	size_t n = print (value, digits);
+	return (n + println());
+}
+
 size_t Print::print (double value, uint8_t digits, uint8_t places, uint8_t ls)
 {
-	return printFloat (value, digits, places, ls);
+	return printDouble (value, digits, places, ls);
 }
 
 size_t Print::println (double value, uint8_t digits, uint8_t places, uint8_t ls)
 {
-	size_t n = printFloat (value, digits, places, ls);
+	size_t n = printDouble (value, digits, places, ls);
 	return (n + println());
 }
 
-//////////// signed, print() and println(), PROGMEM strings ////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////// better version of printFloat is in work /////////////////////////
+//size_t Print::print (long double value, uint8_t digits, uint8_t places, uint8_t ls)
+//{
+//	return printDouble (value, digits, places, ls);
+//}
+//
+//size_t Print::println (long double value, uint8_t digits, uint8_t places, uint8_t ls)
+//{
+//	size_t n = printDouble (value, digits, places, ls);
+//	return (n + println());
+//}
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+//////////// print() and println(), FLASH strings ////////////
 size_t Print::print (const __FlashStringHelper *ifsh)
 {
 	PGM_P p = reinterpret_cast <PGM_P> (ifsh);
@@ -216,11 +241,11 @@ size_t Print::println (const __FlashStringHelper *ifsh)
 	return (n + println());
 }
 
-// print_P, signed
 size_t Print::print_P (const void *str)
 {
 	size_t n = 0;
 	char c;
+
 	while ((c = PGM_READ_BYTE (str + n++))) {
 		write (c);
 	}
@@ -228,20 +253,19 @@ size_t Print::print_P (const void *str)
 	return n;
 }
 
-// println_P, signed
 size_t Print::println_P (const void *str)
 {
 	size_t n = print_P (str);
 	return (n + println());
 }
 
-// print_E, EEMEM (eeprom) strings ////
+//////////// print() and println(), EEPROM strings ////////////
 size_t Print::print_E (const void *str)
 {
 	size_t n = 0;
 	char c;
 
-	while ((c = eeprom_read_byte ((const uint8_t *)(str + n++)))) {
+	while ((c = eeprom_read_byte ((const uint8_t *) (str + n++)))) {
 		write (c);
 	}
 
@@ -281,7 +305,7 @@ size_t Print::println (const Printable &s)
 //////////// we all need println()! ////////////
 size_t Print::println (void)
 {
-	return print ("\n");
+	return write ('\n');
 }
 
 // Private Methods /////////////////////////////////////////////////////////////
@@ -305,7 +329,6 @@ size_t Print::printNumber (int64_t value, uint8_t base, uint8_t sign)
 	// if base < 2 then default to decimal (prevent crash if base == 0)
 	// if base > 16 then default to hex
 	base = base < BIN ? DEC : base > HEX ? HEX : base;
-
 	pow = 0; // initialize power value
 	val = value; // make a scrap copy of "value"
 
@@ -323,8 +346,9 @@ size_t Print::printNumber (int64_t value, uint8_t base, uint8_t sign)
 	return n;
 }
 
-// this is a really crappy way to print floating point numbers....
-size_t Print::printFloat (double value, uint8_t digits)
+// this was a really crappy way to print floating point numbers, but
+// we pipe it to the good printDouble for backward compatibility.
+size_t Print::printDouble (double value, uint8_t digits)
 {
 	size_t n = 0;
 
@@ -381,76 +405,6 @@ size_t Print::printFloat (double value, uint8_t digits)
 	}
 
 	return n;
-}
-
-// A better printFloat that accepts 2 parameters like printf x.yf does.
-// allows control of both the decimal point position AND the number
-// of characters to print. For example, to print numbers that are
-// potentially 5 digits with 2 digits after the decimal point, you do
-// this: print (value, 8, 2). This is because a value like 12345.67
-// has 8 characters total, with two places after the decimal point.
-// This is how the normal printf works, and it's time Arduino caught
-// up with reality.
-size_t Print::printFloat (double value, uint8_t digits, uint8_t dp, uint8_t ls)
-{
-	size_t n = 0;
-	uint8_t chr, flag, def, x;
-	uint64_t div, decpt, val;
-
-	if (value < 0.0) {
-		value = -value;
-		n += write ('-');
-	}
-
-	val = ((uint64_t)(value + 0.5));
-	def = 1;
-
-	while (val) {
-		def++;
-		val /= 10;
-	}
-
-	if (digits < (def + dp)) {
-		digits = (def + dp);
-	}
-
-	div = 1;
-	x = (digits - 2); // account for decimal place
-
-	while (x--) {
-		div *= 10;
-	}
-
-	decpt = 1;
-	x = dp;
-
-	while (x--) {
-		decpt *= 10;
-	}
-
-	val = ((uint64_t)((value * decpt) + 0.5)); // rounding
-	flag = 0; // zero suppress flag
-
-	while (div) {
-		chr = ((val / div) % 10);
-		if (chr || flag || (div == decpt)) {
-			n += write (chr + '0');
-			flag = 1; // printed first non-zero, so don't suppress any more zeros
-
-		} else {
-			if (ls) {
-				n += write (' '); // leading spaces
-			}
-		}
-
-		if ((div == decpt) && dp) {
-			n += write ('.'); // the decimal point (if it needs one);
-		}
-
-		div /= 10;
-	}
-
-	return n; // written character count
 }
 
 // performs base to the exp power

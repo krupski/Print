@@ -18,12 +18,12 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 //
 //  Modified 23 November 2006 by David A. Mellis
-//  Modified 11 April 2016 by Roger A. Krupski <rakrupski@verizon.net>
-//   * can print 64 bit numbers
-//   * does not use any buffer to print
-//   * adds print_P and println_P (print strings from PROGMEM a.k.a. Flash)
-//   * adds print_E and println_E (print strings from EEMEM a.k.a. EEProm)
-//   * printing a string with "\n" in it automatically adds the "\r"
+//  Modified 15 April 2016 by Roger A. Krupski <rakrupski@verizon.net>
+//    * can print 64 bit numbers
+//    * does not use any buffer to print
+//    * adds print_P and println_P (print strings from PROGMEM a.k.a. Flash)
+//    * adds print_E and println_E (print strings from EEMEM a.k.a. EEProm)
+//    * printing a string with "\n" in it automatically adds the "\r"
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -80,46 +80,50 @@ class Print {
 		void println (const _Printable &obj) {
 			obj.print (*this); println();
 		}
-		size_t print (uint8_t, uint8_t = 10);
-		size_t println (uint8_t, uint8_t = 10);
-		size_t print (uint16_t, uint8_t = 10);
-		size_t println (uint16_t, uint8_t = 10);
-		size_t print (uint32_t, uint8_t = 10);
-		size_t println (uint32_t, uint8_t = 10);
-		size_t print (uint64_t, uint8_t = 10);
-		size_t println (uint64_t, uint8_t = 10);
-		size_t print (const char *);
-		size_t println (const char *);
+		size_t print (const void *);
 		size_t print (char);
-		size_t println (char);
+		size_t print (uint8_t, uint8_t = 10);
+		size_t print (uint16_t, uint8_t = 10);
+		size_t print (uint32_t, uint8_t = 10);
+		size_t print (uint64_t, uint8_t = 10);
 		size_t print (int8_t, uint8_t = 10);
-		size_t println (int8_t, uint8_t = 10);
 		size_t print (int16_t, uint8_t = 10);
-		size_t println (int16_t, uint8_t = 10);
 		size_t print (int32_t, uint8_t = 10);
-		size_t println (int32_t, uint8_t = 10);
 		size_t print (int64_t, uint8_t = 10);
-		size_t println (int64_t, uint8_t = 10);
 		size_t print (double, uint8_t = 2);
-		size_t println (double, uint8_t = 2);
 		size_t print (double, uint8_t, uint8_t, uint8_t = 1);
-		size_t println (double, uint8_t, uint8_t, uint8_t = 1);
+		size_t print (long double, uint8_t = 2);
+		size_t print (long double, uint8_t, uint8_t, uint8_t = 1);
 		size_t print (const __FlashStringHelper *);
-		size_t println (const __FlashStringHelper *);
 		size_t print_P (const void *);
-		size_t println_P (const void *);
 		size_t print_E (const void *);
-		size_t println_E (const void *);
 		size_t print (const String &);
-		size_t println (const String &);
 		size_t print (const Printable &);
+		size_t println (const void *);
+		size_t println (char);
+		size_t println (uint8_t, uint8_t = 10);
+		size_t println (uint16_t, uint8_t = 10);
+		size_t println (uint32_t, uint8_t = 10);
+		size_t println (uint64_t, uint8_t = 10);
+		size_t println (int8_t, uint8_t = 10);
+		size_t println (int16_t, uint8_t = 10);
+		size_t println (int32_t, uint8_t = 10);
+		size_t println (int64_t, uint8_t = 10);
+		size_t println (double, uint8_t = 2);
+		size_t println (double, uint8_t, uint8_t, uint8_t = 1);
+		size_t println (long double, uint8_t = 2);
+		size_t println (long double, uint8_t, uint8_t, uint8_t = 1);
+		size_t println (const __FlashStringHelper *);
+		size_t println_P (const void *);
+		size_t println_E (const void *);
+		size_t println (const String &);
 		size_t println (const Printable &);
 		size_t println (void);
 	private:
 		int write_error;
 		size_t printNumber (int64_t, uint8_t, uint8_t);
-		size_t printFloat (double, uint8_t);
-		size_t printFloat (double, uint8_t, uint8_t, uint8_t);
+		size_t printDouble (double, uint8_t);
+		size_t printDouble (double, uint8_t, uint8_t, uint8_t);
 		uint64_t intPower (uint8_t, uint8_t);
 #ifdef pgm_read_byte_far
 #define PGM_READ_BYTE pgm_read_byte_far
@@ -132,3 +136,4 @@ class Print {
 		}
 };
 #endif
+// end of Print.h
