@@ -91,9 +91,7 @@ class Print {
 		size_t print (int32_t, uint8_t = 10);
 		size_t print (int64_t, uint8_t = 10);
 		size_t print (double, uint8_t = 2);
-		size_t print (double, uint8_t, uint8_t, uint8_t = 1);
 		size_t print (long double, uint8_t = 2);
-		size_t print (long double, uint8_t, uint8_t, uint8_t = 1);
 		size_t print (const __FlashStringHelper *);
 		size_t print_P (const void *);
 		size_t print_E (const void *);
@@ -110,9 +108,7 @@ class Print {
 		size_t println (int32_t, uint8_t = 10);
 		size_t println (int64_t, uint8_t = 10);
 		size_t println (double, uint8_t = 2);
-		size_t println (double, uint8_t, uint8_t, uint8_t = 1);
 		size_t println (long double, uint8_t = 2);
-		size_t println (long double, uint8_t, uint8_t, uint8_t = 1);
 		size_t println (const __FlashStringHelper *);
 		size_t println_P (const void *);
 		size_t println_E (const void *);
@@ -123,7 +119,6 @@ class Print {
 		int write_error;
 		size_t printNumber (int64_t, uint8_t, uint8_t);
 		size_t printDouble (double, uint8_t);
-		size_t printDouble (double, uint8_t, uint8_t, uint8_t);
 		uint64_t intPower (uint8_t, uint8_t);
 #ifdef pgm_read_byte_far
 #define PGM_READ_BYTE pgm_read_byte_far

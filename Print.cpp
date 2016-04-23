@@ -99,7 +99,7 @@ size_t Print::print (const void *str)
 	size_t n = 0;
 	char c;
 
-	while ((c = * (((const char *) str) + n++))) {
+	while ((c = *(((const char *) str) + n++))) {
 		if (c == '\n') {
 			write ('\r');
 		}
@@ -195,31 +195,6 @@ size_t Print::println (long double value, uint8_t digits)
 	size_t n = print (value, digits);
 	return (n + println());
 }
-
-size_t Print::print (double value, uint8_t digits, uint8_t places, uint8_t ls)
-{
-	return printDouble (value, digits, places, ls);
-}
-
-size_t Print::println (double value, uint8_t digits, uint8_t places, uint8_t ls)
-{
-	size_t n = printDouble (value, digits, places, ls);
-	return (n + println());
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////// better version of printFloat is in work /////////////////////////
-//size_t Print::print (long double value, uint8_t digits, uint8_t places, uint8_t ls)
-//{
-//	return printDouble (value, digits, places, ls);
-//}
-//
-//size_t Print::println (long double value, uint8_t digits, uint8_t places, uint8_t ls)
-//{
-//	size_t n = printDouble (value, digits, places, ls);
-//	return (n + println());
-//}
-///////////////////////////////////////////////////////////////////////////////////////////////
 
 //////////// print() and println(), FLASH strings ////////////
 size_t Print::print (const __FlashStringHelper *ifsh)
@@ -346,8 +321,7 @@ size_t Print::printNumber (int64_t value, uint8_t base, uint8_t sign)
 	return n;
 }
 
-// this was a really crappy way to print floating point numbers, but
-// we pipe it to the good printDouble for backward compatibility.
+// this was a really crappy way to print floating point numbers
 size_t Print::printDouble (double value, uint8_t digits)
 {
 	size_t n = 0;
