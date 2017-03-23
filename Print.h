@@ -42,9 +42,6 @@
 #define DEC 10
 #define HEX 16
 
-#define _unsigned 0
-#define _signed 1
-
 #define ARDUINO_CORE_PRINTABLE_SUPPORT
 
 class Print;
@@ -56,12 +53,11 @@ class _Printable {
 
 class Print {
 	public:
-		Print (void) : write_error (0) {}
-		int getWriteError (void) {
-			return write_error;
-		}
-		void clearWriteError (void) {
-			setWriteError (0);
+		Print() : write_error (0) {}
+		int getWriteError() { return write_error; }
+		void clearWriteError() { setWriteError (0); }
+		void setWriteError (int err = 1) {
+			write_error = err;
 		}
 		virtual size_t write (uint8_t) = 0;
 		size_t write (const char *str) {
@@ -70,65 +66,75 @@ class Print {
 			}
 			return write ((const uint8_t *) str, strlen (str));
 		}
-		virtual size_t write (const uint8_t *buffer, size_t size);
-		size_t write (const char *buffer, size_t size) {
-			return write ((const uint8_t *)buffer, size);
+		virtual size_t write (const uint8_t *, size_t);
+		size_t write (const char *buffer, size_t siz) {
+			return write ((const uint8_t *) buffer, siz);
 		}
-		void print (const _Printable &obj) {
-			obj.print (*this);
-		}
-		void println (const _Printable &obj) {
-			obj.print (*this); println();
-		}
+
+		size_t print (uint8_t, uint8_t=DEC, uint8_t=0);
+		size_t print (uint16_t, uint8_t=DEC, uint8_t=0);
+		size_t print (uint32_t, uint8_t=DEC, uint8_t=0);
+		size_t print (uint64_t, uint8_t=DEC, uint8_t=0);
+
+		size_t println (uint8_t, uint8_t=DEC, uint8_t=0);
+		size_t println (uint16_t, uint8_t=DEC, uint8_t=0);
+		size_t println (uint32_t, uint8_t=DEC, uint8_t=0);
+		size_t println (uint64_t, uint8_t=DEC, uint8_t=0);
+
 		size_t print (const void *);
 		size_t print (char);
-		size_t print (uint8_t, uint8_t = 10);
-		size_t print (uint16_t, uint8_t = 10);
-		size_t print (uint32_t, uint8_t = 10);
-		size_t print (uint64_t, uint8_t = 10);
-		size_t print (int8_t, uint8_t = 10);
-		size_t print (int16_t, uint8_t = 10);
-		size_t print (int32_t, uint8_t = 10);
-		size_t print (int64_t, uint8_t = 10);
-		size_t print (double, uint8_t = 2);
-		size_t print (long double, uint8_t = 2);
-		size_t print (const __FlashStringHelper *);
-		size_t print_P (const void *);
-		size_t print_E (const void *);
-		size_t print (const String &);
-		size_t print (const Printable &);
+		size_t print (int8_t, uint8_t=DEC, uint8_t=0);
+		size_t print (int16_t, uint8_t=DEC, uint8_t=0);
+		size_t print (int32_t, uint8_t=DEC, uint8_t=0);
+		size_t print (int64_t, uint8_t=DEC, uint8_t=0);
+
 		size_t println (const void *);
 		size_t println (char);
-		size_t println (uint8_t, uint8_t = 10);
-		size_t println (uint16_t, uint8_t = 10);
-		size_t println (uint32_t, uint8_t = 10);
-		size_t println (uint64_t, uint8_t = 10);
-		size_t println (int8_t, uint8_t = 10);
-		size_t println (int16_t, uint8_t = 10);
-		size_t println (int32_t, uint8_t = 10);
-		size_t println (int64_t, uint8_t = 10);
-		size_t println (double, uint8_t = 2);
-		size_t println (long double, uint8_t = 2);
+		size_t println (int8_t, uint8_t=DEC, uint8_t=0);
+		size_t println (int16_t, uint8_t=DEC, uint8_t=0);
+		size_t println (int32_t, uint8_t=DEC, uint8_t=0);
+		size_t println (int64_t, uint8_t=DEC, uint8_t=0);
+
+		size_t print (float, uint8_t=2);
+		size_t println (float, uint8_t=2);
+
+		size_t print (double, uint8_t=2);
+		size_t println (double, uint8_t=2);
+
+		size_t print (long double, uint8_t=2);
+		size_t println (long double, uint8_t=2);
+
+		size_t print (const __FlashStringHelper *);
 		size_t println (const __FlashStringHelper *);
+
+		size_t print_P (const void *);
 		size_t println_P (const void *);
+
+		size_t print_E (const void *);
 		size_t println_E (const void *);
+
+		size_t print (const String &);
 		size_t println (const String &);
+
+		size_t print (const Printable &);
 		size_t println (const Printable &);
+
 		size_t println (void);
+
 	private:
 		int write_error;
-		size_t printNumber (int64_t, uint8_t, uint8_t);
+		template <class T> size_t printInteger (T, uint8_t, uint8_t);
 		size_t printDouble (double, uint8_t);
 		uint64_t intPower (uint8_t, uint8_t);
+
 #ifdef pgm_read_byte_far
 #define PGM_READ_BYTE pgm_read_byte_far
 #else
 #define PGM_READ_BYTE pgm_read_byte_near
 #endif
-	protected:
-		void setWriteError (int err = 1) {
-			write_error = err;
-		}
+
 };
+
 #endif
+
 // end of Print.h
