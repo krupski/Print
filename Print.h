@@ -71,38 +71,38 @@ class Print {
 			return write ((const uint8_t *) buffer, siz);
 		}
 
-		size_t print (uint8_t, uint8_t=DEC, uint8_t=0);
-		size_t print (uint16_t, uint8_t=DEC, uint8_t=0);
-		size_t print (uint32_t, uint8_t=DEC, uint8_t=0);
-		size_t print (uint64_t, uint8_t=DEC, uint8_t=0);
+		size_t print (uint8_t, int8_t=DEC, int8_t=0);
+		size_t print (uint16_t, int8_t=DEC, int8_t=0);
+		size_t print (uint32_t, int8_t=DEC, int8_t=0);
+		size_t print (uint64_t, int8_t=DEC, int8_t=0);
 
-		size_t println (uint8_t, uint8_t=DEC, uint8_t=0);
-		size_t println (uint16_t, uint8_t=DEC, uint8_t=0);
-		size_t println (uint32_t, uint8_t=DEC, uint8_t=0);
-		size_t println (uint64_t, uint8_t=DEC, uint8_t=0);
+		size_t println (uint8_t, int8_t=DEC, int8_t=0);
+		size_t println (uint16_t, int8_t=DEC, int8_t=0);
+		size_t println (uint32_t, int8_t=DEC, int8_t=0);
+		size_t println (uint64_t, int8_t=DEC, int8_t=0);
 
 		size_t print (const void *);
 		size_t print (char);
-		size_t print (int8_t, uint8_t=DEC, uint8_t=0);
-		size_t print (int16_t, uint8_t=DEC, uint8_t=0);
-		size_t print (int32_t, uint8_t=DEC, uint8_t=0);
-		size_t print (int64_t, uint8_t=DEC, uint8_t=0);
+		size_t print (int8_t, int8_t=DEC, int8_t=0);
+		size_t print (int16_t, int8_t=DEC, int8_t=0);
+		size_t print (int32_t, int8_t=DEC, int8_t=0);
+		size_t print (int64_t, int8_t=DEC, int8_t=0);
 
 		size_t println (const void *);
 		size_t println (char);
-		size_t println (int8_t, uint8_t=DEC, uint8_t=0);
-		size_t println (int16_t, uint8_t=DEC, uint8_t=0);
-		size_t println (int32_t, uint8_t=DEC, uint8_t=0);
-		size_t println (int64_t, uint8_t=DEC, uint8_t=0);
+		size_t println (int8_t, int8_t=DEC, int8_t=0);
+		size_t println (int16_t, int8_t=DEC, int8_t=0);
+		size_t println (int32_t, int8_t=DEC, int8_t=0);
+		size_t println (int64_t, int8_t=DEC, int8_t=0);
 
-		size_t print (float, uint8_t=2);
-		size_t println (float, uint8_t=2);
+		size_t print (float, int8_t=-1, int8_t=-1);
+		size_t println (float, int8_t=-1, int8_t=-1);
 
-		size_t print (double, uint8_t=2);
-		size_t println (double, uint8_t=2);
+		size_t print (double, int8_t=-1, int8_t=-1);
+		size_t println (double, int8_t=-1, int8_t=-1);
 
-		size_t print (long double, uint8_t=2);
-		size_t println (long double, uint8_t=2);
+		size_t print (long double, int8_t=-1, int8_t=-1);
+		size_t println (long double, int8_t=-1, int8_t=-1);
 
 		size_t print (const __FlashStringHelper *);
 		size_t println (const __FlashStringHelper *);
@@ -123,8 +123,8 @@ class Print {
 
 	private:
 		int write_error;
-		template <class T> size_t printInteger (T, uint8_t, uint8_t);
-		size_t printDouble (double, uint8_t);
+		template <class T> size_t printInteger (T, int8_t, int8_t);
+		size_t printDouble (double, int8_t, int8_t);
 		uint64_t intPower (uint8_t, uint8_t);
 
 #ifdef pgm_read_byte_far

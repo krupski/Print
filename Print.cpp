@@ -49,46 +49,46 @@ size_t Print::write (const uint8_t *str, size_t siz)
 }
 
 /////////////////////// unsigned, print() ///////////////////////
-size_t Print::print (uint8_t value, uint8_t base, uint8_t chars)
+size_t Print::print (uint8_t value, int8_t base, int8_t chars)
 {
 	return printInteger (value, base, chars);
 }
 
-size_t Print::print (uint16_t value, uint8_t base, uint8_t chars)
+size_t Print::print (uint16_t value, int8_t base, int8_t chars)
 {
 	return printInteger (value, base, chars);
 }
 
-size_t Print::print (uint32_t value, uint8_t base, uint8_t chars)
+size_t Print::print (uint32_t value, int8_t base, int8_t chars)
 {
 	return printInteger (value, base, chars);
 }
 
-size_t Print::print (uint64_t value, uint8_t base, uint8_t chars)
+size_t Print::print (uint64_t value, int8_t base, int8_t chars)
 {
 	return printInteger (value, base, chars);
 }
 
 /////////////////////// unsigned, println() ///////////////////////
-size_t Print::println (uint8_t value, uint8_t base, uint8_t chars)
+size_t Print::println (uint8_t value, int8_t base, int8_t chars)
 {
 	size_t n = print (value, base, chars);
 	return (n + println());
 }
 
-size_t Print::println (uint16_t value, uint8_t base, uint8_t chars)
+size_t Print::println (uint16_t value, int8_t base, int8_t chars)
 {
 	size_t n = print (value, base, chars);
 	return (n + println());
 }
 
-size_t Print::println (uint32_t value, uint8_t base, uint8_t chars)
+size_t Print::println (uint32_t value, int8_t base, int8_t chars)
 {
 	size_t n = print (value, base, chars);
 	return (n + println());
 }
 
-size_t Print::println (uint64_t value, uint8_t base, uint8_t chars)
+size_t Print::println (uint64_t value, int8_t base, int8_t chars)
 {
 	size_t n = print (value, base, chars);
 	return (n + println());
@@ -123,22 +123,22 @@ size_t Print::print (char c)
 	return n;
 }
 
-size_t Print::print (int8_t value, uint8_t base, uint8_t chars)
+size_t Print::print (int8_t value, int8_t base, int8_t chars)
 {
 	return printInteger (value, base, chars);
 }
 
-size_t Print::print (int16_t value, uint8_t base, uint8_t chars)
+size_t Print::print (int16_t value, int8_t base, int8_t chars)
 {
 	return printInteger (value, base, chars);
 }
 
-size_t Print::print (int32_t value, uint8_t base, uint8_t chars)
+size_t Print::print (int32_t value, int8_t base, int8_t chars)
 {
 	return printInteger (value, base, chars);
 }
 
-size_t Print::print (int64_t value, uint8_t base, uint8_t chars)
+size_t Print::print (int64_t value, int8_t base, int8_t chars)
 {
 	return printInteger (value, base, chars);
 }
@@ -156,61 +156,61 @@ size_t Print::println (char c)
 	return (n + println());
 }
 
-size_t Print::println (int8_t value, uint8_t base, uint8_t chars)
+size_t Print::println (int8_t value, int8_t base, int8_t chars)
 {
 	size_t n = print (value, base, chars);
 	return (n + println());
 }
 
-size_t Print::println (int16_t value, uint8_t base, uint8_t chars)
+size_t Print::println (int16_t value, int8_t base, int8_t chars)
 {
 	size_t n = print (value, base, chars);
 	return (n + println());
 }
 
-size_t Print::println (int32_t value, uint8_t base, uint8_t chars)
+size_t Print::println (int32_t value, int8_t base, int8_t chars)
 {
 	size_t n = print (value, base, chars);
 	return (n + println());
 }
 
-size_t Print::println (int64_t value, uint8_t base, uint8_t chars)
+size_t Print::println (int64_t value, int8_t base, int8_t chars)
 {
 	size_t n = print (value, base, chars);
 	return (n + println());
 }
 
 //////////// print() and println(), floating point ////////////
-size_t Print::print (float value, uint8_t digits)
+size_t Print::print (float value, int8_t chars, int8_t prec)
 {
-	return printDouble (value, digits);
+	return printDouble (value, chars, prec);
 }
 
-size_t Print::println (float value, uint8_t digits)
+size_t Print::println (float value, int8_t chars, int8_t prec)
 {
-	size_t n = print (value, digits);
+	size_t n = print (value, chars, prec);
 	return (n + println ());
 }
 
-size_t Print::print (double value, uint8_t digits)
+size_t Print::print (double value, int8_t chars, int8_t prec)
 {
-	return printDouble (value, digits);
+	return printDouble (value, chars, prec);
 }
 
-size_t Print::println (double value, uint8_t digits)
+size_t Print::println (double value, int8_t chars, int8_t prec)
 {
-	size_t n = print (value, digits);
+	size_t n = print (value, chars, prec);
 	return (n + println());
 }
 
-size_t Print::print (long double value, uint8_t digits)
+size_t Print::print (long double value, int8_t chars, int8_t prec)
 {
-	return printDouble (value, digits);
+	return printDouble (value, chars, prec);
 }
 
-size_t Print::println (long double value, uint8_t digits)
+size_t Print::println (long double value, int8_t chars, int8_t prec)
 {
-	size_t n = print (value, digits);
+	size_t n = print (value, chars, prec);
 	return (n + println());
 }
 
@@ -316,7 +316,7 @@ size_t Print::println (void)
 }
 
 // Private Methods /////////////////////////////////////////////////////////////
-template <class T> size_t Print::printInteger (T value, uint8_t base, uint8_t chars)
+template <class T> size_t Print::printInteger (T value, int8_t base, int8_t chars)
 {
 	size_t n = 0;
 	int8_t idx;
@@ -377,28 +377,45 @@ template <class T> size_t Print::printInteger (T value, uint8_t base, uint8_t ch
 	return n;
 }
 
-size_t Print::printDouble (double value, uint8_t digits)
+size_t Print::printDouble (double value, int8_t chars, int8_t prec)
 {
 	size_t n = 0;
 	char *buf;
-	uint8_t d;
 	int64_t val;
 
-	// digits plus decimal point plus possible minus sign plus null
-	d = (digits + 3);
-	// make a scrap copy of value
+	if ((chars == -1) && (prec == -1)) {
+		prec = 2; // backwards compatible
+		chars = 0;
+	}
+
+	if ((chars != -1) && (prec == -1)) {
+		prec = chars; // if precision only is specified
+		chars = 0;
+	}
+
+	n = (prec + 1); // fractional part plus decimal point (borrow n)
+
 	val = value;
 
 	while (val) { // find out how many digits we are gonna print
-		d++; // count digit
+		n++; // count digit
 		val /= 10; // next digit
 	}
 
-	// allocate buffer for dtostrf()
-	buf = (char *) malloc (d * sizeof (char));
-	if (!buf) { print_P (F("malloc?")); }
+	n = (chars > n) ? chars : n; // if we need more buffer....
 
-	dtostrf (value, 0, digits, buf); // convert to buffer
+	n += 2; // account for possible minus sign and EOL
+
+	// allocate buffer for dtostrf()
+	buf = (char *) malloc (n * sizeof (char));
+
+	if (!buf) { // if malloc fails, say so
+		print_P (F("malloc?"));
+		n = 0;
+		return n;
+	}
+
+	dtostrf (value, chars, prec, buf); // convert to buffer
 	n = print (buf); // print it
 	free (buf); // free allocated buffer
 
