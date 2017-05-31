@@ -221,7 +221,7 @@ size_t Print::print (const __FlashStringHelper *ifsh)
 	size_t n = 0;
 	char c;
 
-	while ((c = PGM_READ_BYTE (ptr++))) {
+	while ((c = pgm_read_byte (ptr++))) {
 		n += print ((char) c);
 	}
 
@@ -242,7 +242,7 @@ size_t Print::print_P (const void *str)
 
 	ptr = (char *) str;
 
-	while ((c = PGM_READ_BYTE (ptr++))) {
+	while ((c = pgm_read_byte (ptr++))) {
 		n += print ((char) c);
 	}
 
@@ -377,9 +377,10 @@ template <class T> size_t Print::printInteger (T value, int8_t base, int8_t char
 	return n;
 }
 
-size_t Print::printDouble (double value, int8_t chars, int8_t prec)
+size_t Print::printDouble (double value, int chars, int prec)
 {
 	size_t n = 0;
+	int frac;
 	char *buf;
 	int64_t val;
 
@@ -393,21 +394,21 @@ size_t Print::printDouble (double value, int8_t chars, int8_t prec)
 		chars = 0;
 	}
 
-	n = (prec + 1); // fractional part plus decimal point (borrow n)
+	frac = (prec + 1); // fractional part plus decimal point (borrow n)
 
 	val = value;
 
 	while (val) { // find out how many digits we are gonna print
-		n++; // count digit
+		frac++; // count digit
 		val /= 10; // next digit
 	}
 
-	n = (chars > n) ? chars : n; // if we need more buffer....
+	frac = (chars > frac) ? chars : frac; // if we need more buffer....
 
-	n += 2; // account for possible minus sign and EOL
+	frac += 2; // account for possible minus sign and EOL
 
 	// allocate buffer for dtostrf()
-	buf = (char *) malloc (n * sizeof (char));
+	buf = (char *) malloc (frac * sizeof (char));
 
 	if (!buf) { // if malloc fails, say so
 		print_P (F("malloc?"));
@@ -432,6 +433,27 @@ uint64_t Print::intPower (uint8_t base, uint8_t exp)
 	}
 
 	return result;
+}
+
+// dummies for stdio compatability
+int Print::available (void)
+{
+	return 0;
+}
+
+int Print::read (void)
+{
+	return 0;
+}
+
+int Print::peek (void)
+{
+	return 0;
+}
+
+void Print::flush (void)
+{
+	// void so nothing
 }
 
 ///////// end of print.cpp ////////

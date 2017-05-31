@@ -59,14 +59,25 @@ class Print {
 		void setWriteError (int err = 1) {
 			write_error = err;
 		}
-		virtual size_t write (uint8_t) = 0;
+		// dummies for stdio compatibility
+		virtual int available (void);
+		virtual int read (void);
+		virtual int peek (void);
+		virtual void flush (void);
+		operator bool (void) {
+			return true;
+		}
+
+		virtual size_t write (uint8_t);
 		size_t write (const char *str) {
 			if (str == NULL) {
 				return 0;
 			}
 			return write ((const uint8_t *) str, strlen (str));
 		}
+
 		virtual size_t write (const uint8_t *, size_t);
+
 		size_t write (const char *buffer, size_t siz) {
 			return write ((const uint8_t *) buffer, siz);
 		}
@@ -124,15 +135,8 @@ class Print {
 	private:
 		int write_error;
 		template <class T> size_t printInteger (T, int8_t, int8_t);
-		size_t printDouble (double, int8_t, int8_t);
+		size_t printDouble (double, int, int);
 		uint64_t intPower (uint8_t, uint8_t);
-
-#ifdef pgm_read_byte_far
-#define PGM_READ_BYTE pgm_read_byte_far
-#else
-#define PGM_READ_BYTE pgm_read_byte_near
-#endif
-
 };
 
 #endif
