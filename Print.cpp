@@ -42,7 +42,8 @@ size_t Print::write (const uint8_t *str, size_t siz)
 	size_t n = 0;
 
 	while (siz--) {
-		write (*(str + n++));
+		write (*(str + n));
+		n++;
 	}
 
 	return n;
@@ -98,12 +99,14 @@ size_t Print::println (uint64_t value, int8_t base, int8_t chars)
 size_t Print::print (const void *str)
 {
 	size_t n = 0;
-	char *ptr;
 	char c;
+	char *ptr;
 
 	ptr = (char *) str;
 
-	while ((c = *ptr++)) {
+	// cannot use n as the index because cr/lf
+	// returns 2 and messes up index position!
+	while ((c = *(ptr++))) {
 		n += print ((char) c);
 	}
 
@@ -146,7 +149,7 @@ size_t Print::print (int64_t value, int8_t base, int8_t chars)
 /////////////////////// signed, println() ///////////////////////
 size_t Print::println (const void *str)
 {
-	size_t n = print ((const char *) str);
+	size_t n = print ((const void *) str);
 	return (n + println());
 }
 
@@ -433,27 +436,6 @@ uint64_t Print::intPower (uint8_t base, uint8_t exp)
 	}
 
 	return result;
-}
-
-// dummies for stdio compatability
-int Print::available (void)
-{
-	return 0;
-}
-
-int Print::read (void)
-{
-	return 0;
-}
-
-int Print::peek (void)
-{
-	return 0;
-}
-
-void Print::flush (void)
-{
-	// void so nothing
 }
 
 ///////// end of print.cpp ////////
