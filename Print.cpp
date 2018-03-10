@@ -2,6 +2,7 @@
 //
 //  Print.cpp - Base class that provides print() and println()
 //  Copyright (c) 2008 David A. Mellis. All right reserved.
+//  Copyright (c) 2017 Roger A. Krupski. All right reserved.
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -18,12 +19,11 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 //
 //  Modified 23 November 2006 by David A. Mellis
-//  Modified 15 April 2016 by Roger A. Krupski <rakrupski@verizon.net>
-//    * can print 64 bit numbers
-//    * does not use any buffer to print
-//    * adds print_P and println_P (print strings from PROGMEM a.k.a. Flash)
-//    * adds print_E and println_E (print strings from EEMEM a.k.a. EEProm)
-//    * printing a string with "\n" in it automatically adds the "\r"
+//  Modified 18 December 2017 by Roger A. Krupski <rakrupski@verizon.net>
+//   * can print 64 bit numbers
+//   * adds print_P and println_P (print strings from PROGMEM a.k.a. Flash)
+//   * adds print_E and println_E (print strings from EEMEM a.k.a. EEProm)
+//   * printing a string with "\n" in it automatically adds the "\r"
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +42,7 @@ size_t Print::write (const uint8_t *str, size_t siz)
 	size_t n = 0;
 
 	while (siz--) {
-		write (*(str + n));
+		write (* (str + n));
 		n++;
 	}
 
@@ -50,48 +50,48 @@ size_t Print::write (const uint8_t *str, size_t siz)
 }
 
 /////////////////////// unsigned, print() ///////////////////////
-size_t Print::print (uint8_t value, int8_t base, int8_t chars)
+size_t Print::print (uint8_t value, uint8_t base, uint8_t digits)
 {
-	return printInteger (value, base, chars);
+	return printInteger (value, base, digits);
 }
 
-size_t Print::print (uint16_t value, int8_t base, int8_t chars)
+size_t Print::print (uint16_t value, uint8_t base, uint8_t digits)
 {
-	return printInteger (value, base, chars);
+	return printInteger (value, base, digits);
 }
 
-size_t Print::print (uint32_t value, int8_t base, int8_t chars)
+size_t Print::print (uint32_t value, uint8_t base, uint8_t digits)
 {
-	return printInteger (value, base, chars);
+	return printInteger (value, base, digits);
 }
 
-size_t Print::print (uint64_t value, int8_t base, int8_t chars)
+size_t Print::print (uint64_t value, uint8_t base, uint8_t digits)
 {
-	return printInteger (value, base, chars);
+	return printInteger (value, base, digits);
 }
 
 /////////////////////// unsigned, println() ///////////////////////
-size_t Print::println (uint8_t value, int8_t base, int8_t chars)
+size_t Print::println (uint8_t value, uint8_t base, uint8_t digits)
 {
-	size_t n = print (value, base, chars);
+	size_t n = print (value, base, digits);
 	return (n + println());
 }
 
-size_t Print::println (uint16_t value, int8_t base, int8_t chars)
+size_t Print::println (uint16_t value, uint8_t base, uint8_t digits)
 {
-	size_t n = print (value, base, chars);
+	size_t n = print (value, base, digits);
 	return (n + println());
 }
 
-size_t Print::println (uint32_t value, int8_t base, int8_t chars)
+size_t Print::println (uint32_t value, uint8_t base, uint8_t digits)
 {
-	size_t n = print (value, base, chars);
+	size_t n = print (value, base, digits);
 	return (n + println());
 }
 
-size_t Print::println (uint64_t value, int8_t base, int8_t chars)
+size_t Print::println (uint64_t value, uint8_t base, uint8_t digits)
 {
-	size_t n = print (value, base, chars);
+	size_t n = print (value, base, digits);
 	return (n + println());
 }
 
@@ -100,14 +100,10 @@ size_t Print::print (const void *str)
 {
 	size_t n = 0;
 	char c;
-	char *ptr;
 
-	ptr = (char *) str;
-
-	// cannot use n as the index because cr/lf
-	// returns 2 and messes up index position!
-	while ((c = *(ptr++))) {
-		n += print ((char) c);
+	while ((c = * ((const char *) (str + n)))) {
+		print ((char) c);
+		n++;
 	}
 
 	return n;
@@ -118,38 +114,37 @@ size_t Print::print (char c)
 	size_t n = 0;
 
 	if (c == '\n') {
-		n += write ((char) '\r'); // add CR to LF
+		n += write ((uint8_t) '\r'); // add CR to LF
 	}
 
-	n += write ((char) c);
-
+	n += write ((uint8_t) c);
 	return n;
 }
 
-size_t Print::print (int8_t value, int8_t base, int8_t chars)
+size_t Print::print (int8_t value, uint8_t base, uint8_t digits)
 {
-	return printInteger (value, base, chars);
+	return printInteger (value, base, digits);
 }
 
-size_t Print::print (int16_t value, int8_t base, int8_t chars)
+size_t Print::print (int16_t value, uint8_t base, uint8_t digits)
 {
-	return printInteger (value, base, chars);
+	return printInteger (value, base, digits);
 }
 
-size_t Print::print (int32_t value, int8_t base, int8_t chars)
+size_t Print::print (int32_t value, uint8_t base, uint8_t digits)
 {
-	return printInteger (value, base, chars);
+	return printInteger (value, base, digits);
 }
 
-size_t Print::print (int64_t value, int8_t base, int8_t chars)
+size_t Print::print (int64_t value, uint8_t base, uint8_t digits)
 {
-	return printInteger (value, base, chars);
+	return printInteger (value, base, digits);
 }
 
 /////////////////////// signed, println() ///////////////////////
 size_t Print::println (const void *str)
 {
-	size_t n = print ((const void *) str);
+	size_t n = print (str);
 	return (n + println());
 }
 
@@ -159,61 +154,61 @@ size_t Print::println (char c)
 	return (n + println());
 }
 
-size_t Print::println (int8_t value, int8_t base, int8_t chars)
+size_t Print::println (int8_t value, uint8_t base, uint8_t digits)
 {
-	size_t n = print (value, base, chars);
+	size_t n = print (value, base, digits);
 	return (n + println());
 }
 
-size_t Print::println (int16_t value, int8_t base, int8_t chars)
+size_t Print::println (int16_t value, uint8_t base, uint8_t digits)
 {
-	size_t n = print (value, base, chars);
+	size_t n = print (value, base, digits);
 	return (n + println());
 }
 
-size_t Print::println (int32_t value, int8_t base, int8_t chars)
+size_t Print::println (int32_t value, uint8_t base, uint8_t digits)
 {
-	size_t n = print (value, base, chars);
+	size_t n = print (value, base, digits);
 	return (n + println());
 }
 
-size_t Print::println (int64_t value, int8_t base, int8_t chars)
+size_t Print::println (int64_t value, uint8_t base, uint8_t digits)
 {
-	size_t n = print (value, base, chars);
+	size_t n = print (value, base, digits);
 	return (n + println());
 }
 
 //////////// print() and println(), floating point ////////////
-size_t Print::print (float value, int8_t chars, int8_t prec)
+size_t Print::print (float value, uint8_t prec, uint8_t digits)
 {
-	return printDouble (value, chars, prec);
+	return printDouble (value, prec, digits);
 }
 
-size_t Print::println (float value, int8_t chars, int8_t prec)
+size_t Print::println (float value, uint8_t prec, uint8_t digits)
 {
-	size_t n = print (value, chars, prec);
-	return (n + println ());
-}
-
-size_t Print::print (double value, int8_t chars, int8_t prec)
-{
-	return printDouble (value, chars, prec);
-}
-
-size_t Print::println (double value, int8_t chars, int8_t prec)
-{
-	size_t n = print (value, chars, prec);
+	size_t n = print (value, prec, digits);
 	return (n + println());
 }
 
-size_t Print::print (long double value, int8_t chars, int8_t prec)
+size_t Print::print (double value, uint8_t prec, uint8_t digits)
 {
-	return printDouble (value, chars, prec);
+	return printDouble (value, prec, digits);
 }
 
-size_t Print::println (long double value, int8_t chars, int8_t prec)
+size_t Print::println (double value, uint8_t prec, uint8_t digits)
 {
-	size_t n = print (value, chars, prec);
+	size_t n = print (value, prec, digits);
+	return (n + println());
+}
+
+size_t Print::print (long double value, uint8_t prec, uint8_t digits)
+{
+	return printDouble (value, prec, digits);
+}
+
+size_t Print::println (long double value, uint8_t prec, uint8_t digits)
+{
+	size_t n = print (value, prec, digits);
 	return (n + println());
 }
 
@@ -224,8 +219,13 @@ size_t Print::print (const __FlashStringHelper *ifsh)
 	size_t n = 0;
 	char c;
 
-	while ((c = pgm_read_byte (ptr++))) {
-		n += print ((char) c);
+#if defined (pgm_read_byte_far)
+	while ((c = pgm_read_byte_far (ptr + n))) {
+#else
+	while ((c = pgm_read_byte_near (ptr + n))) {
+#endif
+		print ((char) c);
+		n++;
 	}
 
 	return n;
@@ -241,12 +241,14 @@ size_t Print::print_P (const void *str)
 {
 	size_t n = 0;
 	char c;
-	char *ptr;
 
-	ptr = (char *) str;
-
-	while ((c = pgm_read_byte (ptr++))) {
-		n += print ((char) c);
+#if defined (pgm_read_byte_far)
+	while ((c = pgm_read_byte_far (str + n))) {
+#else
+	while ((c = pgm_read_byte_near (str + n))) {
+#endif
+		print ((char) c);
+		n++;
 	}
 
 	return n;
@@ -263,12 +265,10 @@ size_t Print::print_E (const void *str)
 {
 	size_t n = 0;
 	char c;
-	uint8_t *ptr;
 
-	ptr = (uint8_t *) str;
-
-	while ((c = eeprom_read_byte (ptr++))) {
-		n += print ((char) c);
+	while ((c = eeprom_read_byte ((const uint8_t *) (str + n)))) {
+		print ((char) c);
+		n++;
 	}
 
 	return n;
@@ -288,7 +288,7 @@ size_t Print::print (const String &s)
 	char *ptr = (char *) s.c_str();
 
 	while (len--) {
-		n += print ((char) *ptr++);
+		n += print ((char) * ptr++);
 	}
 
 	return n;
@@ -315,18 +315,17 @@ size_t Print::println (const Printable &s)
 //////////// we all need println()! ////////////
 size_t Print::println (void)
 {
-	return print ((char) '\n');
+	return write ("\r\n");
 }
 
 // Private Methods /////////////////////////////////////////////////////////////
-template <class T> size_t Print::printInteger (T value, int8_t base, int8_t chars)
+template <class T> size_t Print::printInteger (T value, uint8_t base, uint8_t digits)
 {
 	size_t n = 0;
 	int8_t idx;
 	int8_t pow;
 	uint8_t pad;
 	T val;
-
 	val = -1; // prepare for signed/unsigned test
 
 	if (val < 0) { // if unsigned it's never less than 01
@@ -342,6 +341,7 @@ template <class T> size_t Print::printInteger (T value, int8_t base, int8_t char
 
 	if (base == DEC) { // pad decimal with spaces...
 		pad = ' '; // ascii space
+
 	} else { // ...pad all else with zero
 		pad = '0'; // ascii zero
 	}
@@ -353,24 +353,23 @@ template <class T> size_t Print::printInteger (T value, int8_t base, int8_t char
 		pow++; // how many digits in "value" with a base of "base"
 	}
 
-	if (chars > 16) {
-		chars = 16; // no more than 16 character places
+	if (digits > 16) {
+		digits = 16; // no more than 16 character places
 	}
 
 	// print at least req'd number of chars, or more.
-	chars = pow < chars ? chars : pow;
+	digits = pow < digits ? digits : pow;
 
-	while (chars--) { // print each character
-
-		idx = ((value / intPower (base, chars)) % base); // get a digit
-		value -= (idx * intPower (base, chars)); // subtract from what's left
+	while (digits--) { // print each character
+		idx = ((value / intPower (base, digits)) % base); // get a digit
+		value -= (idx * intPower (base, digits)); // subtract from what's left
 
 		if (idx > 9) {
 			idx += 7; // print hex A-F
 		}
 
-		if (chars < pow) { // if it's part of the actual number
-			n += print ((char)(idx + '0'));
+		if (digits < pow) { // if it's part of the actual number
+			n += print ((char) (idx + '0'));
 
 		} else { // else it's a padding character
 			n += print ((char) pad);
@@ -380,50 +379,12 @@ template <class T> size_t Print::printInteger (T value, int8_t base, int8_t char
 	return n;
 }
 
-size_t Print::printDouble (double value, int chars, int prec)
+size_t Print::printDouble (long double value, uint8_t prec, uint8_t digits)
 {
-	size_t n = 0;
-	int frac;
-	char *buf;
-	int64_t val;
+	char buf [32];
 
-	if ((chars == -1) && (prec == -1)) {
-		prec = 2; // backwards compatible
-		chars = 0;
-	}
-
-	if ((chars != -1) && (prec == -1)) {
-		prec = chars; // if precision only is specified
-		chars = 0;
-	}
-
-	frac = (prec + 1); // fractional part plus decimal point (borrow n)
-
-	val = value;
-
-	while (val) { // find out how many digits we are gonna print
-		frac++; // count digit
-		val /= 10; // next digit
-	}
-
-	frac = (chars > frac) ? chars : frac; // if we need more buffer....
-
-	frac += 2; // account for possible minus sign and EOL
-
-	// allocate buffer for dtostrf()
-	buf = (char *) malloc (frac * sizeof (char));
-
-	if (!buf) { // if malloc fails, say so
-		print_P (F("malloc?"));
-		n = 0;
-		return n;
-	}
-
-	dtostrf (value, chars, prec, buf); // convert to buffer
-	n = print (buf); // print it
-	free (buf); // free allocated buffer
-
-	return n;
+	dtostrf (value, digits, prec, buf); // convert to buffer
+	return print (buf); // print it
 }
 
 // performs base to the exp power

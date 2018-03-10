@@ -2,6 +2,7 @@
 //
 //  Print.h - Base class that provides print() and println()
 //  Copyright (c) 2008 David A. Mellis. All right reserved.
+//  Copyright (c) 2016 Roger A. Krupski. All right reserved.
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -42,75 +43,72 @@
 #define DEC 10
 #define HEX 16
 
-#define ARDUINO_CORE_PRINTABLE_SUPPORT
-
-class _Printable {
-	public:
-		virtual void print (Print &stream) const = 0;
-};
-
 class Print {
 	public:
-		Print() : write_error (0) {}
+		Print():write_error (0) {}
 		int getWriteError (void) { return write_error; }
 		void clearWriteError (void) { setWriteError(0); }
-		virtual size_t write (uint8_t) = 0;
 		size_t write (const char *str) {
 			if (str == NULL) { return 0; }
 			return write ((const uint8_t *) str, strlen (str));
 		}
-		virtual size_t write (const uint8_t *buffer, size_t size);
-		size_t write (const char *buffer, size_t size) {
-			return write((const uint8_t *) buffer, size);
+		size_t write (const char *buf, size_t siz) {
+			return write((const uint8_t *) buf, siz);
 		}
-		virtual int availableForWrite() { return 0; }
-		virtual void flush() { return; }
-		size_t print (uint8_t, int8_t=DEC, int8_t=0);
-		size_t print (uint16_t, int8_t=DEC, int8_t=0);
-		size_t print (uint32_t, int8_t=DEC, int8_t=0);
-		size_t print (uint64_t, int8_t=DEC, int8_t=0);
-		size_t println (uint8_t, int8_t=DEC, int8_t=0);
-		size_t println (uint16_t, int8_t=DEC, int8_t=0);
-		size_t println (uint32_t, int8_t=DEC, int8_t=0);
-		size_t println (uint64_t, int8_t=DEC, int8_t=0);
+		virtual size_t write (uint8_t) = 0;
+		virtual size_t write (const uint8_t *, size_t);
+		size_t print (uint8_t, uint8_t=DEC, uint8_t=0);
+		size_t print (uint16_t, uint8_t=DEC, uint8_t=0);
+		size_t print (uint32_t, uint8_t=DEC, uint8_t=0);
+		size_t print (uint64_t, uint8_t=DEC, uint8_t=0);
 		size_t print (const void *);
 		size_t print (char);
-		size_t print (int8_t, int8_t=DEC, int8_t=0);
-		size_t print (int16_t, int8_t=DEC, int8_t=0);
-		size_t print (int32_t, int8_t=DEC, int8_t=0);
-		size_t print (int64_t, int8_t=DEC, int8_t=0);
+		size_t print (int8_t, uint8_t=DEC, uint8_t=0);
+		size_t print (int16_t, uint8_t=DEC, uint8_t=0);
+		size_t print (int32_t, uint8_t=DEC, uint8_t=0);
+		size_t print (int64_t, uint8_t=DEC, uint8_t=0);
+		size_t print (float, uint8_t=2, uint8_t=0);
+		size_t print (double, uint8_t=2, uint8_t=0);
+		size_t print (long double, uint8_t=2, uint8_t=0);
+		size_t print (const __FlashStringHelper *);
+		size_t print_P (const void *);
+		size_t print_E (const void *);
+		size_t print (const String &);
+		size_t print (const Printable &);
+		size_t println (uint8_t, uint8_t=DEC, uint8_t=0);
+		size_t println (uint16_t, uint8_t=DEC, uint8_t=0);
+		size_t println (uint32_t, uint8_t=DEC, uint8_t=0);
+		size_t println (uint64_t, uint8_t=DEC, uint8_t=0);
 		size_t println (const void *);
 		size_t println (char);
-		size_t println (int8_t, int8_t=DEC, int8_t=0);
-		size_t println (int16_t, int8_t=DEC, int8_t=0);
-		size_t println (int32_t, int8_t=DEC, int8_t=0);
-		size_t println (int64_t, int8_t=DEC, int8_t=0);
-		size_t print (float, int8_t=-1, int8_t=-1);
-		size_t println (float, int8_t=-1, int8_t=-1);
-		size_t print (double, int8_t=-1, int8_t=-1);
-		size_t println (double, int8_t=-1, int8_t=-1);
-		size_t print (long double, int8_t=-1, int8_t=-1);
-		size_t println (long double, int8_t=-1, int8_t=-1);
-		size_t print (const __FlashStringHelper *);
+		size_t println (int8_t, uint8_t=DEC, uint8_t=0);
+		size_t println (int16_t, uint8_t=DEC, uint8_t=0);
+		size_t println (int32_t, uint8_t=DEC, uint8_t=0);
+		size_t println (int64_t, uint8_t=DEC, uint8_t=0);
+		size_t println (float, uint8_t=2, uint8_t=0);
+		size_t println (double, uint8_t=2, uint8_t=0);
+		size_t println (long double, uint8_t=2, uint8_t=0);
 		size_t println (const __FlashStringHelper *);
-		size_t print_P (const void *);
 		size_t println_P (const void *);
-		size_t print_E (const void *);
 		size_t println_E (const void *);
-		size_t print (const String &);
 		size_t println (const String &);
-		size_t print (const Printable &);
 		size_t println (const Printable &);
 		size_t println (void);
+		// dummies for other device compatibility
+		virtual int availableForWrite (void) { return 0; }
+		virtual int available (void) { return 0; }
+		virtual void flush (void) { return; }
+		virtual int peek (void) { return 0; }
+		virtual int read (void) { return 0; }
 	private:
 		int write_error;
-		template <class T> size_t printInteger (T, int8_t, int8_t);
-		size_t printDouble (double, int, int);
+		template <class T> size_t printInteger (T, uint8_t, uint8_t);
+		size_t printDouble (long double, uint8_t, uint8_t);
 		uint64_t intPower (uint8_t, uint8_t);
 	protected:
 		void setWriteError (int err = 1) { write_error = err; }
 };
 
-#endif
+#endif // #ifndef PRINT_H
 
 // end of Print.h
