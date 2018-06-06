@@ -101,7 +101,7 @@ size_t Print::print (const void *str)
 	size_t n = 0;
 	char c;
 
-	while ((c = * ((const char *) (str + n)))) {
+	while ((c = * ((const char *)(str + n)))) {
 		print ((char) c);
 		n++;
 	}
@@ -266,7 +266,7 @@ size_t Print::print_E (const void *str)
 	size_t n = 0;
 	char c;
 
-	while ((c = eeprom_read_byte ((const uint8_t *) (str + n)))) {
+	while ((c = eeprom_read_byte ((const uint8_t *)(str + n)))) {
 		print ((char) c);
 		n++;
 	}
@@ -325,7 +325,9 @@ template <class T> size_t Print::printInteger (T value, uint8_t base, uint8_t di
 	int8_t idx;
 	int8_t pow;
 	uint8_t pad;
+
 	T val;
+
 	val = -1; // prepare for signed/unsigned test
 
 	if (val < 0) { // if unsigned it's never less than 01
@@ -369,7 +371,7 @@ template <class T> size_t Print::printInteger (T value, uint8_t base, uint8_t di
 		}
 
 		if (digits < pow) { // if it's part of the actual number
-			n += print ((char) (idx + '0'));
+			n += print ((char)(idx + '0'));
 
 		} else { // else it's a padding character
 			n += print ((char) pad);
@@ -382,7 +384,6 @@ template <class T> size_t Print::printInteger (T value, uint8_t base, uint8_t di
 size_t Print::printDouble (long double value, uint8_t prec, uint8_t digits)
 {
 	char buf [32];
-
 	dtostrf (value, digits, prec, buf); // convert to buffer
 	return print (buf); // print it
 }
