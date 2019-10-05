@@ -2,28 +2,29 @@
 //
 //  Print.cpp - Base class that provides print() and println()
 //  Copyright (c) 2008 David A. Mellis. All right reserved.
-//  Copyright (c) 2017 Roger A. Krupski. All right reserved.
+//  Copyright (c) 2019 Roger A. Krupski. All right reserved.
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License, or (at your option) any later version.
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
 //
-//  This library is distributed in the hope that it will be useful,
+//  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-//  Lesser General Public License for more details.
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU Lesser General Public
 //  License along with this library; if not, write to the Free Software
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 //
 //  Modified 23 November 2006 by David A. Mellis
-//  Modified 18 December 2017 by Roger A. Krupski <rakrupski@verizon.net>
-//   * can print 64 bit numbers
+//  Modified 03 October 2019 by Roger A. Krupski
+//   * can print 64 bit numbers (uses no extra ram)
+//   * improved and extended floating point print code
+//   * printing a string with "\n" in it automatically adds the "\r"
 //   * adds print_P and println_P (print strings from PROGMEM a.k.a. Flash)
 //   * adds print_E and println_E (print strings from EEMEM a.k.a. EEProm)
-//   * printing a string with "\n" in it automatically adds the "\r"
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,20 +37,21 @@
 #include "Print.h"
 
 // Public Methods
-// default implementation: may be overridden
-size_t Print::write (const uint8_t *str, size_t siz)
+
+/* default implementation: may be overridden */
+size_t Print::write(const uint8_t *str, size_t siz)
 {
 	size_t n = 0;
 
 	while (siz--) {
-		write (* (str + n));
+		write ((uint8_t)(*(str + n)));
 		n++;
 	}
 
 	return n;
 }
 
-/////////////////////// unsigned, print() ///////////////////////
+/////////////////// unsigned integers, print() ///////////////////
 size_t Print::print (uint8_t value, uint8_t base, uint8_t digits)
 {
 	return printInteger (value, base, digits);
@@ -70,7 +72,28 @@ size_t Print::print (uint64_t value, uint8_t base, uint8_t digits)
 	return printInteger (value, base, digits);
 }
 
-/////////////////////// unsigned, println() ///////////////////////
+/////////////////// signed integers, print() ////////////////////
+size_t Print::print (int8_t value, uint8_t base, uint8_t digits)
+{
+	return printInteger (value, base, digits);
+}
+
+size_t Print::print (int16_t value, uint8_t base, uint8_t digits)
+{
+	return printInteger (value, base, digits);
+}
+
+size_t Print::print (int32_t value, uint8_t base, uint8_t digits)
+{
+	return printInteger (value, base, digits);
+}
+
+size_t Print::print (int64_t value, uint8_t base, uint8_t digits)
+{
+	return printInteger (value, base, digits);
+}
+
+/////////////////// unsigned integers, println() ///////////////////
 size_t Print::println (uint8_t value, uint8_t base, uint8_t digits)
 {
 	size_t n = print (value, base, digits);
@@ -95,65 +118,7 @@ size_t Print::println (uint64_t value, uint8_t base, uint8_t digits)
 	return (n + println());
 }
 
-/////////////////////// signed, print() ///////////////////////
-size_t Print::print (const void *str)
-{
-	size_t n = 0;
-	char c;
-
-	while ((c = * ((const char *)(str + n)))) {
-		print ((char) c);
-		n++;
-	}
-
-	return n;
-}
-
-size_t Print::print (char c)
-{
-	size_t n = 0;
-
-	if (c == '\n') {
-		n += write ((uint8_t) '\r'); // add CR to LF
-	}
-
-	n += write ((uint8_t) c);
-	return n;
-}
-
-size_t Print::print (int8_t value, uint8_t base, uint8_t digits)
-{
-	return printInteger (value, base, digits);
-}
-
-size_t Print::print (int16_t value, uint8_t base, uint8_t digits)
-{
-	return printInteger (value, base, digits);
-}
-
-size_t Print::print (int32_t value, uint8_t base, uint8_t digits)
-{
-	return printInteger (value, base, digits);
-}
-
-size_t Print::print (int64_t value, uint8_t base, uint8_t digits)
-{
-	return printInteger (value, base, digits);
-}
-
 /////////////////////// signed, println() ///////////////////////
-size_t Print::println (const void *str)
-{
-	size_t n = print (str);
-	return (n + println());
-}
-
-size_t Print::println (char c)
-{
-	size_t n = print ((char) c);
-	return (n + println());
-}
-
 size_t Print::println (int8_t value, uint8_t base, uint8_t digits)
 {
 	size_t n = print (value, base, digits);
@@ -175,6 +140,54 @@ size_t Print::println (int32_t value, uint8_t base, uint8_t digits)
 size_t Print::println (int64_t value, uint8_t base, uint8_t digits)
 {
 	size_t n = print (value, base, digits);
+	return (n + println());
+}
+
+///////////////// c-string, print() and println() ///////////////
+size_t Print::print (const void *str)
+{
+	size_t n = 0;
+	char c = 0;
+
+	while (1) {
+
+		c = *((char *)(str) + n);
+
+		if (c) {
+			print (c);
+			n++;
+
+		} else {
+			break;
+		}
+	}
+
+	return n;
+}
+
+size_t Print::println (const void *str)
+{
+	size_t n = print (str);
+	return (n + println());
+}
+
+/////////////////// char, print() and println() /////////////////
+size_t Print::print (char c)
+{
+	size_t n = 0;
+
+	if (c == '\n') {
+		// properly print "xxx\n" as "xxx\r\n"
+		n += write ((uint8_t) '\r'); // add CR to LF
+	}
+
+	n += write ((uint8_t) c);
+	return n;
+}
+
+size_t Print::println (char c)
+{
+	size_t n = print ((char) c);
 	return (n + println());
 }
 
@@ -243,9 +256,9 @@ size_t Print::print_P (const void *str)
 	char c;
 
 #if defined (pgm_read_byte_far)
-	while ((c = pgm_read_byte_far (str + n))) {
+	while ((c = pgm_read_byte_far ((const uint8_t *)(str) + n))) {
 #else
-	while ((c = pgm_read_byte_near (str + n))) {
+	while ((c = pgm_read_byte_near ((const uint8_t *)(str) + n))) {
 #endif
 		print ((char) c);
 		n++;
@@ -266,7 +279,7 @@ size_t Print::print_E (const void *str)
 	size_t n = 0;
 	char c;
 
-	while ((c = eeprom_read_byte ((const uint8_t *)(str + n)))) {
+	while ((c = eeprom_read_byte ((const uint8_t *)(str) + n))) {
 		print ((char) c);
 		n++;
 	}
@@ -288,7 +301,7 @@ size_t Print::print (const String &s)
 	char *ptr = (char *) s.c_str();
 
 	while (len--) {
-		n += print ((char) * ptr++);
+		n += print ((char) *ptr++);
 	}
 
 	return n;
@@ -315,7 +328,7 @@ size_t Print::println (const Printable &s)
 //////////// we all need println()! ////////////
 size_t Print::println (void)
 {
-	return write ("\r\n");
+	return print ((char)('\n'));
 }
 
 // Private Methods /////////////////////////////////////////////////////////////
@@ -330,7 +343,7 @@ template <class T> size_t Print::printInteger (T value, uint8_t base, uint8_t di
 
 	val = -1; // prepare for signed/unsigned test
 
-	if (val < 0) { // if unsigned it's never less than 01
+	if (val < 0) { // if unsigned it's never less than 0
 		if ((value < 0) && (base == DEC)) { // less than 0 means it's signed so...
 			value = -value; // ... if actual value is negative invert it (decimal only)
 			n += print ((char) '-'); // minus sign
@@ -381,7 +394,7 @@ template <class T> size_t Print::printInteger (T value, uint8_t base, uint8_t di
 	return n;
 }
 
-size_t Print::printDouble (long double value, uint8_t prec, uint8_t digits)
+template <class T> size_t Print::printDouble (T value, uint8_t prec, uint8_t digits)
 {
 	char buf [32];
 	dtostrf (value, digits, prec, buf); // convert to buffer
