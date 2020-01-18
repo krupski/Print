@@ -51,8 +51,11 @@ class Print {
 
 		virtual size_t write (uint8_t) = 0;
 		virtual size_t write (const uint8_t *, size_t);
-		virtual int availableForWrite (void) { return 0; }
-		virtual void flush (void) { /* Empty implementation for backward compatibility */ }
+
+		int availableForWrite (void) { return 0; }
+		void flush (void) { /* Empty implementation for backward compatibility */ }
+		int available (void) { return 0; }
+		int read (void) { return 0; }
 
 		size_t print (uint8_t,     uint8_t=DEC, uint8_t=0);
 		size_t print (uint16_t,    uint8_t=DEC, uint8_t=0);
