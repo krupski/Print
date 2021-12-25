@@ -39,7 +39,7 @@
 // Public Methods
 
 /* default implementation: may be overridden */
-size_t Print::write(const uint8_t *str, size_t siz)
+size_t Print::write (const uint8_t *str, size_t siz)
 {
 	size_t n = 0;
 
@@ -71,7 +71,6 @@ size_t Print::print (uint64_t value, uint8_t base, uint8_t digits)
 {
 	return printInteger (value, base, digits);
 }
-
 /////////////////// signed integers, print() ////////////////////
 size_t Print::print (int8_t value, uint8_t base, uint8_t digits)
 {
@@ -182,6 +181,7 @@ size_t Print::print (char c)
 	}
 
 	n += write ((uint8_t) c);
+
 	return n;
 }
 
@@ -268,6 +268,29 @@ size_t Print::print_P (const void *str)
 }
 
 size_t Print::println_P (const void *str)
+{
+	size_t n = print_P (str);
+	return (n + println());
+}
+
+size_t Print::print_P (uint32_t str)
+{
+	size_t n = 0;
+	char c;
+
+#if defined (pgm_read_byte_far)
+	while ((c = pgm_read_byte_far (str + n))) {
+#else
+	while ((c = pgm_read_byte_near (str + n))) {
+#endif
+		print ((char) c);
+		n++;
+	}
+
+	return n;
+}
+
+size_t Print::println_P (uint32_t str)
 {
 	size_t n = print_P (str);
 	return (n + println());
